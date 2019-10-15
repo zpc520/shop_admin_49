@@ -4,6 +4,7 @@ import login from './components/login.vue'
 import index from './components/index.vue'
 
 Vue.use(Router)
+
 const router = new Router({
   routes: [
     { path: '/', redirect: '/index' },
@@ -11,8 +12,7 @@ const router = new Router({
     { path: '/index', component: index }
   ]
 })
-
-router.beforeEach((to, next) => {
+router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   if (to.path === '/login' || token) {
     next()
@@ -20,5 +20,4 @@ router.beforeEach((to, next) => {
     next('/login')
   }
 })
-
 export default router
