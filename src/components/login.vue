@@ -53,7 +53,11 @@ export default {
           url: 'http://localhost:8888/api/private/v1/login',
           data: this.form
         }).then(res => {
-          const { meta } = res.data
+          const { meta, data } = res.data
+          console.log(res)
+          localStorage.setItem('token', data.token)
+          const token = localStorage.getItem('token')
+          console.log(token)
           if (meta.status === 200) {
             this.$message({
               message: meta.msg,
