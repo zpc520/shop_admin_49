@@ -24,6 +24,7 @@
           text-color="#fff"
           active-text-color="#ffd04b"
           unique-opened
+          router
         >
             <!-- 用户管理 -->
           <el-submenu index="1">
@@ -32,7 +33,7 @@
               <span>用户管理</span>
             </template>
 
-              <el-menu-item index="1-1">
+              <el-menu-item index="users">
                 <i class="el-icon-menu"></i>用户列表
               </el-menu-item>
 
@@ -44,11 +45,11 @@
               <span>权限管理</span>
             </template>
 
-              <el-menu-item index="2-1">
+              <el-menu-item index="roles">
                 <i class="el-icon-menu"></i>角色列表
               </el-menu-item>
 
-              <el-menu-item index="2-2">
+              <el-menu-item index="rights">
                 <i class="el-icon-menu"></i>权限列表
               </el-menu-item>
 
@@ -57,7 +58,9 @@
 
       </el-aside>
       <!-- main区域 -->
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
