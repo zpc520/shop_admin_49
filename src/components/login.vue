@@ -56,8 +56,6 @@ export default {
           const { meta, data } = res.data
           console.log(res)
           localStorage.setItem('token', data.token)
-          const token = localStorage.getItem('token')
-          console.log(token)
           if (meta.status === 200) {
             this.$message({
               message: meta.msg,
