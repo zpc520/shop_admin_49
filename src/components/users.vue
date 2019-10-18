@@ -3,33 +3,41 @@
     <!-- 面包屑导航 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>
-        用户管理
-      </el-breadcrumb-item>
-      <el-breadcrumb-item>
-        用户列表
-      </el-breadcrumb-item>
+      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 搜索框 -->
-     <el-input placeholder="请输入搜索关键字" v-model="query" class="input-with-select">
+    <el-input placeholder="请输入搜索关键字" v-model="query" class="input-with-select">
       <el-button @click="serach" slot="append" icon="el-icon-search"></el-button>
     </el-input>
-      <el-button plain type='success'>添加用户</el-button>
+    <!-- 添加用户 -->
+    <el-button @click="showAddDialog" plain type="success">添加用户</el-button>
     <!-- 表格区域 -->
     <el-table :data="tableData" style="width: 100%">
       <el-table-column prop="username" label="姓名" width="180"></el-table-column>
       <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
       <el-table-column prop="mobile" label="电话"></el-table-column>
       <el-table-column label="用户状态">
-        <template v-slot:default='obj'>
-        <el-switch v-model="obj.row.mg_state" @change='changeState(obj.row)' active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+        <template v-slot:default="obj">
+          <el-switch
+            v-model="obj.row.mg_state"
+            @change="changeState(obj.row)"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          ></el-switch>
         </template>
       </el-table-column>
       <el-table-column label="操作">
-        <template v-slot:default='obj'>
-        <el-button plain size="small" type="primary" icon="el-icon-edit"></el-button>
-        <el-button @click='delUser(obj.row)' plain size="small" type="danger" icon="el-icon-delete"></el-button>
-        <el-button plain size="small" type="success" icon="el-icon-check">分配角色</el-button>
+        <template v-slot:default="obj">
+          <el-button @click="showEditDialog(obj.row)" plain size="small" type="primary" icon="el-icon-edit"></el-button>
+          <el-button
+            @click="delUser(obj.row)"
+            plain
+            size="small"
+            type="danger"
+            icon="el-icon-delete"
+          ></el-button>
+          <el-button plain size="small" type="success" icon="el-icon-check">分配角色</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -38,12 +46,56 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       background
-      :current-page='pagenum'
+      :current-page="pagenum"
       :page-sizes="[2, 4, 6, 8]"
       :page-size="pagesize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total='total'>
-    </el-pagination>
+      :total="total"
+    ></el-pagination>
+    <!-- 添加模态框 -->
+    <el-dialog title="添加用户" :visible.sync="dialogVisible" @close='closeDialog' width="40%">
+
+        <el-form ref="form" :model="form" label-width="80px" :rules="rules" status-icon>
+          <el-form-item label="用户名" prop="username">
+            <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input type="password" v-model="form.password" placeholder="请输入密码"></el-input>
+          </el-form-item>
+          <el-form-item label="邮箱">
+            <el-input placeholder="请输入邮箱" v-model="form.email"></el-input>
+          </el-form-item>
+          <el-form-item label="手机">
+            <el-input placeholder="请输入手机号" v-model="form.mobile"></el-input>
+          </el-form-item>
+        </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false" >取 消</el-button>
+        <el-button type="primary" @click="addUser">确 定</el-button>
+      </span>
+    </el-dialog>
+
+     <!-- 编辑模态框 -->
+    <el-dialog title="编辑用户" :visible.sync="editVisible" width="40%">
+
+        <el-form ref="editform" :model="editform" label-width="80px" :rules="rules" status-icon>
+          <el-form-item label="用户名">
+            <el-tag type="info">{{this.editform.username}}</el-tag>
+          </el-form-item>
+          <el-form-item label="邮箱" prop="email">
+            <el-input placeholder="请输入邮箱" v-model="editform.email"></el-input>
+          </el-form-item>
+          <el-form-item label="手机" prop="mobile">
+            <el-input placeholder="请输入手机号" v-model="editform.mobile"></el-input>
+          </el-form-item>
+        </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false" >取 消</el-button>
+        <el-button type="primary" @click="editUser">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -55,22 +107,50 @@ export default {
       pagenum: 1,
       pagesize: 2,
       tableData: [],
-      total: 0
+      total: 0,
+      dialogVisible: false,
+      editVisible: false,
+      form: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      editform: {
+        username: '',
+        email: '',
+        mobile: ''
+      },
+      rules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: ['change', 'blur'] },
+          { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: ['change', 'blur'] }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: ['change', 'blur'] },
+          { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: ['change', 'blur'] }
+        ],
+        email: [
+          { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+        ],
+        mobile: [
+          { pattern: /^1[3-9]\d{9}/, message: '请输入正确的手机号', trigger: ['blur', 'change'] }
+        ]
+      }
     }
   },
   methods: {
     async getUserList () {
-      const { meta, data } = await this.$axios
-        .get('users', {
-          params: {
-            query: this.query,
-            pagenum: this.pagenum,
-            pagesize: this.pagesize
-          },
-          headers: {
-            // Authorization: localStorage.getItem('token')
-          }
-        })
+      const { meta, data } = await this.$axios.get('users', {
+        params: {
+          query: this.query,
+          pagenum: this.pagenum,
+          pagesize: this.pagesize
+        },
+        headers: {
+          // Authorization: localStorage.getItem('token')
+        }
+      })
       if (meta.status === 200) {
         this.tableData = data.users
         this.total = data.total
@@ -112,7 +192,9 @@ export default {
     },
     async changeState (row) {
       try {
-        const { meta } = await this.$axios.put(`users/${row.id}/state/${row.mg_state}`)
+        const { meta } = await this.$axios.put(
+          `users/${row.id}/state/${row.mg_state}`
+        )
         if (meta.status === 200) {
           this.$message.success('设置成功')
         } else {
@@ -121,8 +203,58 @@ export default {
       } catch (e) {
         console.log(e)
       }
+    },
+    showAddDialog () {
+      this.dialogVisible = true
+    },
+    showEditDialog (row) {
+      this.editform.username = row.username
+      this.editform.email = row.email
+      this.editform.mobile = row.mobile
+      this.editform.id = row.id
+      this.editVisible = true
+    },
+    async addUser () {
+      try {
+        await this.$refs.form.validate()
+        const { meta } = await this.$axios.post('users', this.form)
+        if (meta.status === 201) {
+          // 关闭模态框并且重置模态框
+          this.$refs.form.resetFields()
+          this.dialogVisible = false
+          this.total++
+          this.pagenum = Math.ceil(this.total / this.pagesize)
+          this.getUserList()
+          this.$message.success(meta.msg)
+        } else {
+          this.$message.error(meta.msg)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async editUser () {
+      try {
+        await this.$refs.editform.validate()
+        const { id, email, mobile } = this.editform
+        console.log(id)
+        console.log(email)
+        console.log(mobile)
+        const { meta } = await this.$axios.put(`users/${id}`, { id, email, mobile })
+        if (meta.status === 200) {
+          this.editVisible = false
+          this.$message.success(meta.msg)
+          this.getUserList()
+        } else {
+          this.$message.error(meta.msg)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    closeDialog () {
+      this.$refs.form.resetFields()
     }
-
   },
   created () {
     this.getUserList()
@@ -131,20 +263,25 @@ export default {
 </script>
 
 <style lang='scss'>
-.users{
-  .el-breadcrumb{
+.users {
+  .el-breadcrumb {
     height: 40px;
     line-height: 40px;
     margin: 10px;
     border-bottom: 1px solid #ccc;
   }
-  .input-with-select{
+  .input-with-select {
     width: 300px;
     margin-right: 20px;
     margin-bottom: 10px;
   }
-  .el-pagination{
+  .el-pagination {
     margin-top: 10px;
+  }
+  .el-form {
+    margin: 0 auto;
+    padding: 0;
+    width: 94%;
   }
 }
 </style>
