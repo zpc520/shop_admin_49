@@ -90,6 +90,9 @@ export default {
 <style lang='scss'>
 .index {
   height: 100%;
+  .el-menu{
+    border: none;
+  }
   .el-header {
     background-color: #d8d8d8;
     display: flex;
