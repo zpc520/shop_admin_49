@@ -29,7 +29,13 @@
       </el-table-column>
       <el-table-column label="操作">
         <template v-slot:default="obj">
-          <el-button @click="showEditDialog(obj.row)" plain size="small" type="primary" icon="el-icon-edit"></el-button>
+          <el-button
+            @click="showEditDialog(obj.row)"
+            plain
+            size="small"
+            type="primary"
+            icon="el-icon-edit"
+          ></el-button>
           <el-button
             @click="delUser(obj.row)"
             plain
@@ -37,7 +43,13 @@
             type="danger"
             icon="el-icon-delete"
           ></el-button>
-          <el-button plain size="small" type="success" icon="el-icon-check">分配角色</el-button>
+          <el-button
+            @click="showAssignDia(obj.row)"
+            plain
+            size="small"
+            type="success"
+            icon="el-icon-check"
+          >分配角色</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -53,47 +65,69 @@
       :total="total"
     ></el-pagination>
     <!-- 添加模态框 -->
-    <el-dialog title="添加用户" :visible.sync="dialogVisible" @close='closeDialog' width="40%">
-
-        <el-form ref="form" :model="form" label-width="80px" :rules="rules" status-icon>
-          <el-form-item label="用户名" prop="username">
-            <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
-          </el-form-item>
-          <el-form-item label="密码" prop="password">
-            <el-input type="password" v-model="form.password" placeholder="请输入密码"></el-input>
-          </el-form-item>
-          <el-form-item label="邮箱">
-            <el-input placeholder="请输入邮箱" v-model="form.email"></el-input>
-          </el-form-item>
-          <el-form-item label="手机">
-            <el-input placeholder="请输入手机号" v-model="form.mobile"></el-input>
-          </el-form-item>
-        </el-form>
+    <el-dialog title="添加用户" :visible.sync="dialogVisible" @close="closeDialog" width="40%">
+      <el-form ref="form" :model="form" label-width="80px" :rules="rules" status-icon>
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input type="password" v-model="form.password" placeholder="请输入密码"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input placeholder="请输入邮箱" v-model="form.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机">
+          <el-input placeholder="请输入手机号" v-model="form.mobile"></el-input>
+        </el-form-item>
+      </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false" >取 消</el-button>
+        <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addUser">确 定</el-button>
       </span>
     </el-dialog>
 
-     <!-- 编辑模态框 -->
+    <!-- 编辑模态框 -->
     <el-dialog title="编辑用户" :visible.sync="editVisible" width="40%">
-
-        <el-form ref="editform" :model="editform" label-width="80px" :rules="rules" status-icon>
-          <el-form-item label="用户名">
-            <el-tag type="info">{{this.editform.username}}</el-tag>
-          </el-form-item>
-          <el-form-item label="邮箱" prop="email">
-            <el-input placeholder="请输入邮箱" v-model="editform.email"></el-input>
-          </el-form-item>
-          <el-form-item label="手机" prop="mobile">
-            <el-input placeholder="请输入手机号" v-model="editform.mobile"></el-input>
-          </el-form-item>
-        </el-form>
+      <el-form ref="editform" :model="editform" label-width="80px" :rules="rules" status-icon>
+        <el-form-item label="用户名">
+          <el-tag type="info">{{this.editform.username}}</el-tag>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input placeholder="请输入邮箱" v-model="editform.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="mobile">
+          <el-input placeholder="请输入手机号" v-model="editform.mobile"></el-input>
+        </el-form-item>
+      </el-form>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false" >取 消</el-button>
+        <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editUser">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 分配角色模态框 -->
+    <el-dialog title="分配角色" :visible.sync="assignVisible" width="40%">
+      <el-form :model="assignForm" label-width="80px">
+        <el-form-item label="用户名">
+          <el-tag type="info" v-model="assignForm.username">{{assignForm.username}}</el-tag>
+        </el-form-item>
+        <el-form-item label="角色列表">
+          <el-select v-model="assignForm.rid" placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="assignRole">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -110,6 +144,7 @@ export default {
       total: 0,
       dialogVisible: false,
       editVisible: false,
+      assignVisible: false,
       form: {
         username: '',
         password: '',
@@ -121,20 +156,52 @@ export default {
         email: '',
         mobile: ''
       },
+      assignForm: {
+        username: '',
+        id: '',
+        rid: ''
+      },
+      options: [],
       rules: {
         username: [
-          { required: true, message: '请输入用户名', trigger: ['change', 'blur'] },
-          { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: ['change', 'blur'] }
+          {
+            required: true,
+            message: '请输入用户名',
+            trigger: ['change', 'blur']
+          },
+          {
+            min: 3,
+            max: 12,
+            message: '长度在 3 到 12 个字符',
+            trigger: ['change', 'blur']
+          }
         ],
         password: [
-          { required: true, message: '请输入密码', trigger: ['change', 'blur'] },
-          { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: ['change', 'blur'] }
+          {
+            required: true,
+            message: '请输入密码',
+            trigger: ['change', 'blur']
+          },
+          {
+            min: 3,
+            max: 12,
+            message: '长度在 3 到 12 个字符',
+            trigger: ['change', 'blur']
+          }
         ],
         email: [
-          { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+          {
+            type: 'email',
+            message: '请输入正确的邮箱地址',
+            trigger: ['blur', 'change']
+          }
         ],
         mobile: [
-          { pattern: /^1[3-9]\d{9}/, message: '请输入正确的手机号', trigger: ['blur', 'change'] }
+          {
+            pattern: /^1[3-9]\d{9}/,
+            message: '请输入正确的手机号',
+            trigger: ['blur', 'change']
+          }
         ]
       }
     }
@@ -240,7 +307,11 @@ export default {
         console.log(id)
         console.log(email)
         console.log(mobile)
-        const { meta } = await this.$axios.put(`users/${id}`, { id, email, mobile })
+        const { meta } = await this.$axios.put(`users/${id}`, {
+          id,
+          email,
+          mobile
+        })
         if (meta.status === 200) {
           this.editVisible = false
           this.$message.success(meta.msg)
@@ -254,6 +325,35 @@ export default {
     },
     closeDialog () {
       this.$refs.form.resetFields()
+    },
+    async showAssignDia (row) {
+      this.assignVisible = true
+      // 回显基本数据
+      this.assignForm.id = row.id
+      this.assignForm.username = row.username
+      const resUser = await this.$axios.get(`users/${row.id}`)
+      if (resUser.meta.status === 200) {
+        const rid = resUser.data.rid
+        // 如果是新添加的用户, 给 ''
+        this.assignForm.rid = rid === -1 ? '' : rid
+      }
+      const { meta, data } = await this.$axios.get('roles')
+      if (meta.status === 200) {
+        this.options = data
+      } else {
+        this.$message.error(meta.msg)
+      }
+    },
+    async assignRole () {
+      const { id, rid } = this.assignForm
+      const { meta } = await this.$axios.put(`users/${id}/role`, { rid })
+      if (meta.status === 200) {
+        this.$message.success(meta.msg)
+        this.assignVisible = false
+        this.getUserList()
+      } else {
+        this.$message.error(meta.msg)
+      }
     }
   },
   created () {
@@ -264,7 +364,6 @@ export default {
 
 <style lang='scss'>
 .users {
-
   .input-with-select {
     width: 300px;
     margin-right: 20px;
