@@ -2,9 +2,9 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import login from './components/login.vue'
 import index from './components/index.vue'
-import users from './components/users.vue'
-import roles from './components/roles.vue'
-import rights from './components/rights.vue'
+import users from './components/users/users.vue'
+import roles from './components/rights/roles.vue'
+import rights from './components/rights/rights.vue'
 
 Vue.use(Router)
 // 解决目前点击相同导航的bug

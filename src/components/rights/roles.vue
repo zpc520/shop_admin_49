@@ -101,7 +101,7 @@
       <!-- 树型控件 -->
       <el-tree :data="data" show-checkbox default-expand-all node-key="id" ref="tree" :props="defaultProps"></el-tree>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="shareVisible = false">取 消</el-button>
         <el-button @click="shareRights" type="primary">确 定</el-button>
       </span>
     </el-dialog>

@@ -346,6 +346,10 @@ export default {
     },
     async assignRole () {
       const { id, rid } = this.assignForm
+      if (rid === '') {
+        this.$message.error('请选择角色')
+        return
+      }
       const { meta } = await this.$axios.put(`users/${id}/role`, { rid })
       if (meta.status === 200) {
         this.$message.success(meta.msg)

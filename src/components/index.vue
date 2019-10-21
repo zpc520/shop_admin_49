@@ -18,7 +18,7 @@
       <!-- 侧导航栏 -->
       <el-aside width="200px">
         <el-menu
-          default-active="2"
+          :default-active=currentPath
           class="el-menu-vertical-demo"
           background-color="#545c64"
           text-color="#fff"
@@ -27,30 +27,15 @@
           router
         >
             <!-- 用户管理 -->
-          <el-submenu index="1">
+          <el-submenu :index="menu.path" v-for="menu in menus" :key="menu.id">
             <template v-slot:title>
               <i class="el-icon-location"></i>
-              <span>用户管理</span>
+              <span>{{menu.authName}}</span>
             </template>
 
-              <el-menu-item index="users">
-                <i class="el-icon-menu"></i>用户列表
-              </el-menu-item>
-
-          </el-submenu>
-            <!-- 权限管理 -->
-          <el-submenu index="2">
-            <template v-slot:title>
-              <i class="el-icon-location"></i>
-              <span>权限管理</span>
-            </template>
-
-              <el-menu-item index="roles">
-                <i class="el-icon-menu"></i>角色列表
-              </el-menu-item>
-
-              <el-menu-item index="rights">
-                <i class="el-icon-menu"></i>权限列表
+              <el-menu-item :index="item.path" v-for="item in menu.children" :key="item.id">
+                <i class="el-icon-menu"></i>
+                {{item.authName}}
               </el-menu-item>
 
           </el-submenu>
@@ -67,6 +52,24 @@
 
 <script>
 export default {
+  computed: {
+    currentPath () {
+      return this.$route.path.slice(1)
+    }
+  },
+  data () {
+    return {
+      menus: []
+    }
+  },
+  async created () {
+    const { meta, data } = await this.$axios.get('menus')
+    if (meta.status === 200) {
+      this.menus = data
+    } else {
+      console.log(meta.msg)
+    }
+  },
   methods: {
     logout () {
       this.$confirm('亲，您确定要退出系统吗', '温馨提示', {
@@ -83,6 +86,7 @@ export default {
           console.log(err)
         })
     }
+    // 获取后台返回的数据
   }
 }
 </script>
