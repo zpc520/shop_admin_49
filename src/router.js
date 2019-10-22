@@ -5,6 +5,9 @@ import index from './components/index.vue'
 import users from './components/users/users.vue'
 import roles from './components/rights/roles.vue'
 import rights from './components/rights/rights.vue'
+import categories from './components/products/categories.vue'
+import goods from './components/products/goods.vue'
+import goodsAdd from './components/products/googs-add.vue'
 
 Vue.use(Router)
 // 解决目前点击相同导航的bug
@@ -22,7 +25,10 @@ const router = new Router({
       children: [
         { path: '/users', component: users },
         { path: '/roles', component: roles },
-        { path: '/rights', component: rights }
+        { path: '/rights', component: rights },
+        { path: '/categories', component: categories },
+        { path: '/goods', component: goods },
+        { path: '/goods-add', component: goodsAdd }
       ]
     }
   ]

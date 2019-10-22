@@ -4,8 +4,22 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
+import moment from 'moment'
+import VueQuillEditor from 'vue-quill-editor'
+
+// require styles
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
+Vue.use(VueQuillEditor /* { default global options } */)
 
 Vue.config.productionTip = false
+
+// 时间处理过滤器
+Vue.filter('time', function (value) {
+  return moment((value * 1000)).format('YYYY年MM月DD日HH:mm:ss')
+})
 
 // 添加请求拦截器
 axios.interceptors.request.use(function (config) {

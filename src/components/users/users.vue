@@ -213,9 +213,6 @@ export default {
           query: this.query,
           pagenum: this.pagenum,
           pagesize: this.pagesize
-        },
-        headers: {
-          // Authorization: localStorage.getItem('token')
         }
       })
       if (meta.status === 200) {
@@ -304,9 +301,6 @@ export default {
       try {
         await this.$refs.editform.validate()
         const { id, email, mobile } = this.editform
-        console.log(id)
-        console.log(email)
-        console.log(mobile)
         const { meta } = await this.$axios.put(`users/${id}`, {
           id,
           email,
